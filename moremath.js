@@ -142,9 +142,7 @@ class Matrix {
     addRow(row, dest, scale = new Rational(1n)) {
         for (let i = 0; i < this.columns; i++) {
             let r = this.indices[row][i].clone();
-            console.log(r);
             r.mult(scale);
-            console.log(r);
             this.indices[dest][i].add(r);
         }
     }
