@@ -84,7 +84,7 @@ class Matrix {
     constructor(columns, ...indices) {
         let m = [];
         let r = [];
-        if (indices[0] == "indenity") {
+        if (indices[0] == "identity") {
             for (let i = 0; i < columns; i++) {
                 for (let j = 0; j < columns; j++) {
                     if (i == j) {
