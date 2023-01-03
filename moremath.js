@@ -1,5 +1,5 @@
 /*
-More Math library by Erik Haag version 1.0
+More Math library by Erik Haag version 1.1
 
 Adds matrices and rationals to JavaScript, and some other things!
 */
@@ -12,7 +12,7 @@ class Rational {
             } else {
                 return new Error("Denomimator must be greater than 0.");
             }
-        } else {
+        } else {    
             return new Error("Numerator and Denominator must be bigInts.");
         }
     }
@@ -84,7 +84,7 @@ class Matrix {
     constructor(columns, ...indices) {
         let m = [];
         let r = [];
-        if (indices[0] == "identity") {
+        if (indices[0] == "indenity") {
             for (let i = 0; i < columns; i++) {
                 for (let j = 0; j < columns; j++) {
                     if (i == j) {
@@ -336,6 +336,15 @@ class Matrix {
             return new Matrix(this.columns + B.columns, ...m);
         } else {
             return new Error("Unable to augment due too inequal rows.");
+        }
+    }
+    add(B) {
+        if (this.columns == B.columns && this.rows == B.rows) {
+            for (let i = 0; i < this.rows; i++){
+                for (let j = 0; j < this.columns; j++) {
+                    this.indices[i][j].add(B.indices[i][j]);
+                }
+            }
         }
     }
     dotProduct(B) {
