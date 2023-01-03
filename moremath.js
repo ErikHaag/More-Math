@@ -345,6 +345,8 @@ class Matrix {
                     this.indices[i][j].add(B.indices[i][j]);
                 }
             }
+        } else {
+            return new Error("Matrices must be the same size");
         }
     }
     dotProduct(B) {
