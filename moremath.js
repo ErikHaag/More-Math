@@ -1,6 +1,6 @@
 /*
 More Math library by Erik Haag version 1.1
-
+https://github.com/ErikHaag/More-Math/
 Adds matrices and rationals to JavaScript, and some other things!
 */
 class Rational {
