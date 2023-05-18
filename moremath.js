@@ -1,5 +1,5 @@
 /*
-More Math library by Erik Haag version 1.1
+More Math library by Erik Haag version 1.2
 https://github.com/ErikHaag/More-Math/
 Adds matrices and rationals to JavaScript, and some other things!
 */
@@ -78,13 +78,23 @@ class Rational {
             return new Error("argument must be a BigInt.")
         }
     }
+    compare(B) {
+        let difference = this.numerator * B.denominator - B.numerator * this.denominator
+        if (difference > 0) {
+            return 1;
+        }else if (difference < 0) {
+            return -1;
+        }else {
+            return 0;
+        }
+    }
 }
 
 class Matrix {
     constructor(columns, ...indices) {
         let m = [];
         let r = [];
-        if (indices[0] == "indenity") {
+        if (indices[0] == "identity") {
             for (let i = 0; i < columns; i++) {
                 for (let j = 0; j < columns; j++) {
                     if (i == j) {
