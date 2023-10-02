@@ -277,7 +277,7 @@ class Matrix {
                 let M = this.clone();
                 let hMax = M.rows;
                 let kMax = M.columns;
-                let I = new Matrix(M.rows, "indenity");
+                let I = new Matrix(M.rows, "identity");
                 M = M.augment(I);
                 let h = 0;
                 let k = 0;
