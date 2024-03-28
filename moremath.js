@@ -91,10 +91,10 @@ class Rational {
 }
 
 class Matrix {
-    constructor(columns, ...indices) {
+    constructor(columns, indices) {
         let m = [];
         let r = [];
-        if (indices[0] == "identity") {
+        if (indices == "identity") {
             for (let i = 0; i < columns; i++) {
                 for (let j = 0; j < columns; j++) {
                     if (i == j) {
@@ -173,7 +173,7 @@ class Matrix {
                 t.push(this.indices[j][i]);
             }
         }
-        return new Matrix(this.rows, ...t);
+        return new Matrix(this.rows, t.flat());
     }
     clone() {
         let m = [];
@@ -182,7 +182,7 @@ class Matrix {
                 m.push(this.indices[i][j].clone());
             }
         }
-        return new Matrix(this.columns, ...m);
+        return new Matrix(this.columns, m.flat());
     }
     isSquare() {
         return this.columns == this.rows;
@@ -324,7 +324,7 @@ class Matrix {
                         m.push(M.indices[i][j].clone());
                     }
                 }
-                return new Matrix(kMax, ...m);
+                return new Matrix(kMax, m.flat());
             } else {
                 return new Error("Matrix has a determinate of zero.")
             }
@@ -343,7 +343,7 @@ class Matrix {
                     m.push(B.indices[i][j].clone());
                 }
             }
-            return new Matrix(this.columns + B.columns, ...m);
+            return new Matrix(this.columns + B.columns, m.flat());
         } else {
             return new Error("Unable to augment due too inequal rows.");
         }
@@ -382,7 +382,7 @@ class Matrix {
                     m.push(p);
                 }
             }
-            return new Matrix(this.columns, ...m);
+            return new Matrix(this.columns, m.flat());
         } else {
             return new Error("Can only take Hadamard product with matrices of the same size.");
         }
@@ -400,7 +400,7 @@ class Matrix {
                 }
             }
         }
-        return new Matrix(this.columns * B.columns, ...m)
+        return new Matrix(this.columns * B.columns, m.flat())
     }
     outerProduct(B) {
         if (this.columns == 1 && B.columns == 1) {
@@ -412,7 +412,7 @@ class Matrix {
                     m.push(p);
                 }
             }
-            return new Matrix(B.rows, ...m);
+            return new Matrix(B.rows, m.flat());
         } else {
             return new Error("Can only take outer product with vectors. (A matrix with 1 column)");
         }
@@ -431,7 +431,7 @@ class Matrix {
                     m.push(sum);
                 }
             }
-            return new Matrix(B.columns, ...m);
+            return new Matrix(B.columns, m.flat());
         } else {
             return new Error("Matrices have incompatible sizes.");
         }
