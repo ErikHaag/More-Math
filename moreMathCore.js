@@ -33,12 +33,16 @@ const BigMathJS = {
         }
         return a;
     },
+    mod: function(a, b) {
+        let r = a % b;
+        return r >= 0n ? r : r + b;
+    },
     sign: function(a) {
         if (a > 0n) {
             return 1;
         } else if (a < 0n) {
             return -1;
         }
-        return 0;
+        return 0n;
     }
 };

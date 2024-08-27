@@ -13,12 +13,12 @@ class Rational {
             } else {
                 return new Error("Denomimator must be greater than 0.");
             }
-        } else {    
+        } else {
             return new Error("Numerator and Denominator must be bigInts.");
         }
     }
     toLatex() {
-        if (this.denominator == 1) {
+        if (this.denominator == 1n) {
             return this.numerator.toString();
         } else {
             return "\\frac{" + this.numerator + "}{" + this.denominator + "}"
@@ -37,30 +37,69 @@ class Rational {
         }
     }
     toString(decimalLength = 3n, base = 10n, decimalSeperator = ".") {
+        //check if base is valid
+        if (base < 2n || base > 36n) {
+            return new Error("Invalid Base, must be between 2 and 36 (inclusive)");
+        }
+        //setup
         let int = this.numerator / this.denominator;
+        let baseRational = new Rational(BigInt(base));
+        let baseNumber = Number(base);
         let frac = this.clone();
-        frac.mult(new Rational(BigMathJS.sign(int)));
-        let baseRational = new Rational(base);
-        frac.sub(new Rational(int));
-        let remainders = [];
-        if (decimalLength < 0n) {
-            let newRemainder = true;
-            while (newRemainder) {
-                remainders.push({n: frac.numerator, d: frac.denominator});
+        frac.sub(int);
+        if (int < 0n) {
+            frac.mult(-1n);
+        }
+        int = int.toString(baseNumber);
+        if (decimalLength == 0n) {
+            return int;
+        } else {
+            //long division
+            let digits = 0n;
+            let repeatStart = -1n;
+            let remainders = [];
+            let quotient = [];
+            outer: while (decimalLength < 0n || digits < decimalLength) {
+                remainders.push({ n: frac.numerator, d: frac.denominator });
                 frac.mult(baseRational);
-                let fInt = frac.floor();
+                let fInt = frac.clone();
+                fInt.integer();
+                quotient.push(fInt.numerator);
+                digits++;
                 frac.sub(fInt);
-                for (let r of remainders) {
+                for (const i in remainders) {
+                    const r = remainders[i];
                     if (r.n == frac.numerator && r.d == frac.denominator) {
-                        newRemainder = false;
-                        break;
+                        repeatStart = BigInt(i);
+                        break outer;
                     }
                 }
             }
+            //replace integers with characters
+            quotient = quotient.map(element => element.toString(baseNumber));
+            if (repeatStart >= 0n) {
+                //insert repeating brackets
+                quotient.splice(Number(repeatStart), 0, "[");
+                quotient.push("]");
+            }
+            //package up the string
+            return int + decimalSeperator + quotient.join("");
         }
     }
     floor() {
-        return new Rational(this.numerator / this.denominator);
+        //bring numerator down
+        this.numerator -= BigMathJS.mod(this.numerator, this.denominator);
+        this.integer();
+    }
+    ceiling() {
+        //bring numerator up
+        this.numerator += BigMathJS.mod(-this.numerator, this.denominator);
+        this.integer();
+    }
+    integer() {
+        //get integer part of corresponding decimal
+        this.numerator /= this.denominator;
+        this.denominator = 1n;
     }
     cloneInverse() {
         if (this.numerator >= 0) {
@@ -70,45 +109,82 @@ class Rational {
         }
     }
     add(B) {
-        this.numerator = this.numerator * B.denominator + this.denominator * B.numerator;
-        this.denominator *= B.denominator;
-        this.simplify();
+        if (B instanceof Rational) {
+            this.numerator = this.numerator * B.denominator + this.denominator * B.numerator;
+            this.denominator *= B.denominator;
+            this.simplify();
+        } else if (typeof B == "bigint") {
+            this.numerator += this.denominator * B;
+        } else {
+            return new Error("Not BigInt or Rational");
+        }
     }
     sub(B) {
-        this.numerator = this.numerator * B.denominator - this.denominator * B.numerator;
-        this.denominator *= B.denominator;
-        this.simplify();
+        if (B instanceof Rational) {
+            this.numerator = this.numerator * B.denominator - this.denominator * B.numerator;
+            this.denominator *= B.denominator;
+            this.simplify();
+        } else if (typeof B == "bigint") {
+            this.numerator -= this.denominator * B;
+        } else {
+            return new Error("Not BigInt or Rational");
+        }
     }
     mult(B) {
-        this.numerator *= B.numerator;
-        this.denominator *= B.denominator;
-        this.simplify();
+        if (B instanceof Rational) {
+            this.numerator *= B.numerator;
+            this.denominator *= B.denominator;
+            this.simplify();
+        } else if (typeof B == "bigint") {
+            if (this.denominator % B == 0n) {
+                this.denominator /= B;
+            } else {
+                this.numerator *= B;
+            }
+        } else {
+            return new Error("Not BigInt or Rational");
+        }
     }
     div(B) {
-        if (B.numerator == 0) {
-            return new Error("Division by zero!")
-        } else {
+        if (B instanceof Rational) {
+            if (B.numerator == 0n) {
+                return new Error("Division by zero!");
+            }
             this.numerator *= B.denominator;
             this.denominator *= B.numerator;
             this.simplify();
+        } else if (typeof B == "bigint") {
+            if (B == 0n) {
+                return new Error("Division by zero!");
+            }
+            if (this.numerator % B == 0n) {
+                this.numerator /= B;
+            } else {
+                this.denominator *= B;
+            }
         }
     }
     pow(B) {
-        if (typeof B == "bigint"){
-        this.numerator **= B;
-        this.denominator **= B;
+        if (typeof B == "bigint") {
+            this.numerator **= B;
+            this.denominator **= B;
         } else {
             return new Error("argument must be a BigInt.")
         }
     }
     compare(B) {
-        let difference = this.numerator * B.denominator - B.numerator * this.denominator
-        if (difference > 0) {
-            return 1;
-        }else if (difference < 0) {
-            return -1;
-        }else {
-            return 0;
+        let difference = 0n;
+        if (B instanceof Rational) {
+            difference = this.numerator * B.denominator - B.numerator * this.denominator;
+        } else if (typeof B == "bigint") {
+            difference = this.numerator - B * this.denominator
+        }
+        if (difference > 0n) {
+            return 1n;
+        } else if (difference < 0n) {
+            return -1n;
+        } else {
+            return 0n;
         }
     }
 }
