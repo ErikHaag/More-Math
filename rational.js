@@ -1,7 +1,7 @@
 /*
 More Math library by Erik Haag version 2.0
 https://github.com/ErikHaag/More-Math/
-Dependencies:
+Dependencies: moreMathCore.js
 */
 
 class Rational {
@@ -11,10 +11,10 @@ class Rational {
                 this.numerator = numerator;
                 this.denominator = denominator;
             } else {
-                return new Error("Denomimator must be greater than 0.");
+                return new Error("Denomimator must be greater than 0");
             }
         } else {
-            return new Error("Numerator and Denominator must be bigInts.");
+            return new Error("Numerator and denominator must be BigInts");
         }
     }
     toLatex() {
@@ -67,6 +67,9 @@ class Rational {
                 quotient.push(fInt.numerator);
                 digits++;
                 frac.sub(fInt);
+                if (frac.numerator == 0n) {
+                    break outer;
+                }
                 for (const i in remainders) {
                     const r = remainders[i];
                     if (r.n == frac.numerator && r.d == frac.denominator) {
@@ -101,12 +104,11 @@ class Rational {
         this.numerator /= this.denominator;
         this.denominator = 1n;
     }
-    cloneInverse() {
-        if (this.numerator >= 0) {
-            return new Rational(this.denominator, this.numerator);
-        } else {
-            return new Rational(-this.denominator, -this.numerator);
+    inverse() {
+        if (this.numerator == 0n) {
+            return new Error("Division by zero!");
         }
+        [this.numerator, this.denominator] = [this.denominator, this.numerator];
     }
     add(B) {
         if (B instanceof Rational) {
@@ -116,7 +118,7 @@ class Rational {
         } else if (typeof B == "bigint") {
             this.numerator += this.denominator * B;
         } else {
-            return new Error("Not BigInt or Rational");
+            return new Error("Argument must be BigInt or Rational");
         }
     }
     sub(B) {
@@ -127,7 +129,7 @@ class Rational {
         } else if (typeof B == "bigint") {
             this.numerator -= this.denominator * B;
         } else {
-            return new Error("Not BigInt or Rational");
+            return new Error("Argument must be BigInt or Rational");
         }
     }
     mult(B) {
@@ -142,7 +144,7 @@ class Rational {
                 this.numerator *= B;
             }
         } else {
-            return new Error("Not BigInt or Rational");
+            return new Error("Argument must be BigInt or Rational");
         }
     }
     div(B) {
@@ -169,7 +171,7 @@ class Rational {
             this.numerator **= B;
             this.denominator **= B;
         } else {
-            return new Error("argument must be a BigInt.")
+            return new Error("Argument must be a BigInt");
         }
     }
     compare(B) {
