@@ -6,10 +6,10 @@ Adds matrices and rationals to JavaScript, and some other things!
 
 const BigMathJS = {
     abs: function (a) {
-        return (a < 0) ? -a : a;
+        return (a < 0n) ? -a : a;
     },
     defactor: function (a, b) {
-        while (a % b == 0) {
+        while (a % b == 0n) {
             a /= b;
         }
         return a;
@@ -24,7 +24,7 @@ const BigMathJS = {
     gcd: function (a, b) {
         a = BigMathJS.abs(a);
         b = BigMathJS.abs(b);
-        while (b > 0) {
+        while (b > 0n) {
             if (a < b) {
                 [a, b] = [b, a];
             } else {
