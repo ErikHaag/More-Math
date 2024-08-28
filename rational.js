@@ -36,10 +36,14 @@ class Rational {
             this.denominator *= -1n;
         }
     }
-    toString() {
-        return this.numerator + "/" + this.denominator;
+    toString(hideDenominator = true) {
+        if (hideDenominator && this.denominator == 1n) {
+            return this.numerator.toString();
+        } else {
+            return this.numerator + "/" + this.denominator;
+        }
     }
-    toDecimal(decimalLength = 3n, base = 10n, decimalSeperator = ".") {
+    toDecimal(decimalLength = 3n, base = 10n, decimalSeparator = ".") {
         //check if base is valid
         if (base < 2n || base > 36n) {
             return new Error("Invalid Base, must be between 2 and 36 (inclusive)");
@@ -86,7 +90,7 @@ class Rational {
                 quotient.push("]");
             }
             //package up the string
-            return int + decimalSeperator + quotient.join("");
+            return int + decimalSeparator + quotient.join("");
         }
     }
     floor() {
