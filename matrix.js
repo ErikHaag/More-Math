@@ -325,7 +325,7 @@ class Matrix {
         }
         this.indices = m;
         this.columns *= B.columns;
-        this.row *= B.rows;
+        this.rows *= B.rows;
         this.#determinateCalled = false;
     }
     outerProduct(B) {
