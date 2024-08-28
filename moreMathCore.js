@@ -33,6 +33,9 @@ const BigMathJS = {
         }
         return a;
     },
+    lcm: function(a, b) {
+        return (a * b) / BigMathJS.lcm(a, b);
+    },
     mod: function(a, b) {
         let r = a % b;
         return r >= 0n ? r : r + b;
