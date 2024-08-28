@@ -12,17 +12,16 @@ class Matrix {
     //whether the determinate method was called
     #determinateCalled = false;
     constructor(columns, indices) {
-        let m = [];
-        let r = [];
         if (indices === "identity") {
+            let m = [];
             for (let i = 0; i < columns; i++) {
+                let r = [];
                 for (let j = 0; j < columns; j++) {
                     if (i == j) {
                         r.push(new Rational(1n));
                     } else {
                         r.push(new Rational(0n));
                     }
-                    r = [];
                 }
                 m.push(r);
             }
@@ -32,6 +31,8 @@ class Matrix {
         } else {
             let indicesLength = indices.length;
             if (indicesLength % columns == 0) {
+                let m = [];
+                let r = [];
                 for (let i = 0; i < indicesLength; i++) {
                     if (typeof indices[i] == "number") {
                         indices[i] = new Rational(BigInt(Math.floor(indices[i])));
