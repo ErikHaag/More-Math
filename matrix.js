@@ -1,8 +1,20 @@
+/*
+More Math library by Erik Haag version 2.0
+https://github.com/ErikHaag/More-Math/
+Dependencies: moreMathCore.js, rational.js
+*/
+
 class Matrix {
+    //the determinate
+    #determinate = null;
+    //the row echelon form
+    #ref = null;
+    //whether the determinate method was called
+    #determinateCalled = false;
     constructor(columns, indices) {
         let m = [];
         let r = [];
-        if (indices == "identity") {
+        if (indices === "identity") {
             for (let i = 0; i < columns; i++) {
                 for (let j = 0; j < columns; j++) {
                     if (i == j) {
@@ -10,9 +22,9 @@ class Matrix {
                     } else {
                         r.push(new Rational(0n));
                     }
+                    r = [];
                 }
                 m.push(r);
-                r = [];
             }
             this.indices = m;
             this.columns = columns;
@@ -41,6 +53,7 @@ class Matrix {
         }
     }
     toLatex() {
+        //creates the LaTeX code for this matrix 
         let b = [];
         for (let i = 0; i < this.rows; i++) {
             let r = []
@@ -52,10 +65,10 @@ class Matrix {
         return "\\begin{bmatrix}" + b.join("\\\\") + "\\end{bmatrix}";
     }
     swapRows(a, b) {
-        let A = this.indices[a];
-        let B = this.indices[b];
-        this.indices[a] = B;
-        this.indices[b] = A;
+        [this.indices[a], this.indices[b]] = [this.indices[b], this.indices[a]];
+        if (this.#determinateCalled) {
+            this.#determinate.mult(-1n); 
+        }
     }
     addRow(row, dest, scale = new Rational(1n)) {
         for (let i = 0; i < this.columns; i++) {
@@ -63,6 +76,7 @@ class Matrix {
             r.mult(scale);
             this.indices[dest][i].add(r);
         }
+        this.#determinateCalled = false;
     }
     scale(scale) {
         for (let i = 0; i < this.rows; i++) {
@@ -72,6 +86,9 @@ class Matrix {
     scaleRow(row, scale) {
         for (let i = 0; i < this.columns; i++) {
             this.indices[row][i].mult(scale);
+        }
+        if (this.#determinateCalled) {
+            this.#determinate.mult(scale);
         }
     }
     transpose() {
@@ -95,18 +112,20 @@ class Matrix {
     isSquare() {
         return this.columns == this.rows;
     }
-    gaussianElimination() {
+    #rowReduction() {
         let h = 0;
         let k = 0;
-        while ((h < this.rows) && (k < this.columns)) {
+        let neg = false;
+        let m = this.clone();
+        while ((h < m.rows) && (k < m.columns)) {
             let iMax = h;
             let max = new Rational(0n);
             for (let i = h; i < this.rows; i++) {
-                let c = this.indices[i][k].clone();
+                let c = m.indices[i][k].clone();
                 c.numerator = BigMathJS.abs(c.numerator);
                 c.sub(max)
                 if (c.numerator > 0n) {
-                    max = this.indices[i][k].clone();
+                    max = m.indices[i][k].clone();
                     max.numerator = BigMathJS.abs(max.numerator);
                     iMax = i;
                 }
@@ -114,70 +133,51 @@ class Matrix {
             if (max.numerator == 0n) {
                 k += 1;
             } else {
-                this.swapRows(h, iMax);
-                for (let i = h + 1; i < this.rows; i++) {
-                    let f = this.indices[i][k].clone();
-                    f.div(this.indices[h][k]);
-                    this.indices[i][k] = new Rational(0n);
-                    for (let j = k + 1; j < this.columns; j++) {
-                        let s = this.indices[h][j].clone();
+                m.swapRows(h, iMax);
+                if (h != iMax) {
+                    neg = !neg;
+                }
+                for (let i = h + 1; i < m.rows; i++) {
+                    let f = m.indices[i][k].clone();
+                    f.div(m.indices[h][k]);
+                    m.indices[i][k] = new Rational(0n);
+                    for (let j = k + 1; j < m.columns; j++) {
+                        let s = m.indices[h][j].clone();
                         s.mult(f);
-                        this.indices[i][j].sub(s);
+                        m.indices[i][j].sub(s);
                     }
                 }
                 h += 1;
                 k += 1;
             }
         }
+        this.#ref = m;
+        if (this.isSquare()) {
+            let p = new Rational((neg ? -1n : 1n));
+            for (let i = 0; i < m.columns; i++) {
+                p.mult(m.indices[i][i]);
+            }
+            this.#determinate = p.clone();
+        } else {
+            this.#determinate = new Rational(0n);
+        }
+    }
+    gaussianElimination() {
+        if (!this.#determinateCalled) {
+            this.#rowReduction();
+        }
+        this.indices = structuredClone(this.#ref);
+        this.#determinateCalled = false;
     }
     determinate() {
-        if (this.isSquare()) {
-            let M = this.clone();
-            let neg = false;
-            let h = 0;
-            let k = 0;
-            while ((h < M.rows) && (k < M.columns)) {
-                let iMax = h;
-                let max = new Rational(0n);
-                for (let i = h; i < M.rows; i++) {
-                    let c = M.indices[i][k].clone();
-                    c.numerator = BigMathJS.abs(c.numerator);
-                    c.sub(max)
-                    if (c.numerator > 0n) {
-                        max = M.indices[i][k].clone();
-                        max.numerator = BigMathJS.abs(max.numerator);
-                        iMax = i;
-                    }
-                }
-                if (max.numerator == 0n) {
-                    k += 1;
-                } else {
-                    M.swapRows(h, iMax);
-                    if (h != iMax) {
-                        neg = !neg;
-                    }
-                    for (let i = h + 1; i < M.rows; i++) {
-                        let f = M.indices[i][k].clone();
-                        f.div(M.indices[h][k]);
-                        M.indices[i][k] = new Rational(0n);
-                        for (let j = k + 1; j < M.columns; j++) {
-                            let s = M.indices[h][j].clone();
-                            s.mult(f);
-                            M.indices[i][j].sub(s);
-                        }
-                    }
-                    h += 1;
-                    k += 1;
-                }
-            }
-            let p = new Rational((neg ? -1n : 1n));
-            for (let i = 0; i < M.columns; i++) {
-                p.mult(M.indices[i][i]);
-            }
-            return p;
-        } else {
-            return new Error("Can't take the determinate of a non-square matrix.");
+        if (!this.isSquare()) {
+            return new Error("Can't take determinate of non-square matrix");
         }
+        if (!this.#determinateCalled) {
+            this.#rowReduction();
+            this.#determinateCalled = true;
+        }
+        return this.#determinate;
     }
     inverse() {
         if (this.isSquare()) {
@@ -251,6 +251,7 @@ class Matrix {
                     m.push(B.indices[i][j].clone());
                 }
             }
+            this.#determinateCalled = false;
             return new Matrix(this.columns + B.columns, m.flat());
         } else {
             return new Error("Unable to augment due too inequal rows.");
@@ -263,11 +264,13 @@ class Matrix {
                     this.indices[i][j].add(B.indices[i][j]);
                 }
             }
+            this.#determinateCalled = false;
         } else {
             return new Error("Matrices must be the same size");
         }
     }
     dotProduct(B) {
+        //add element-wise products
         if (this.columns == 1 && B.columns == 1 && this.rows == B.rows) {
             let s = new Rational(0n);
             for (let i = 0; i < this.rows; i++) {
@@ -281,6 +284,7 @@ class Matrix {
         }
     }
     hadamardProduct(B) {
+        //element-wise product
         let m = [];
         if (this.columns == B.columns && this.rows == B.rows) {
             for (let i = 0; i < this.rows; i++) {
@@ -296,6 +300,7 @@ class Matrix {
         }
     }
     kroneckerProduct(B) {
+        //matrices inside matrices
         let m = [];
         for (let aI = 0; aI < this.rows; aI++) {
             for (let bI = 0; bI < B.rows; bI++) {
@@ -311,6 +316,7 @@ class Matrix {
         return new Matrix(this.columns * B.columns, m.flat())
     }
     outerProduct(B) {
+        //multiplication table
         if (this.columns == 1 && B.columns == 1) {
             let m = [];
             for (let i = 0; i < this.rows; i++) {
@@ -326,6 +332,7 @@ class Matrix {
         }
     }
     product(B) {
+        //standard issue product
         if (this.columns == B.rows) {
             let m = [];
             for (let i = 0; i < this.rows; i++) {
