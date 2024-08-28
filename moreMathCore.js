@@ -1,5 +1,5 @@
 /*
-More Math library by Erik Haag version 1.2
+More Math library by Erik Haag version 2.0
 https://github.com/ErikHaag/More-Math/
 Adds matrices and rationals to JavaScript, and some other things!
 */
