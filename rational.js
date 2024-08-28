@@ -67,9 +67,6 @@ class Rational {
                 quotient.push(fInt.numerator);
                 digits++;
                 frac.sub(fInt);
-                if (frac.numerator == 0n) {
-                    break outer;
-                }
                 for (const i in remainders) {
                     const r = remainders[i];
                     if (r.n == frac.numerator && r.d == frac.denominator) {
