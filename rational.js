@@ -36,7 +36,10 @@ class Rational {
             this.denominator *= -1n;
         }
     }
-    toString(decimalLength = 3n, base = 10n, decimalSeperator = ".") {
+    toString() {
+        return this.numerator + "/" + this.denominator;
+    }
+    toDecimal(decimalLength = 3n, base = 10n, decimalSeperator = ".") {
         //check if base is valid
         if (base < 2n || base > 36n) {
             return new Error("Invalid Base, must be between 2 and 36 (inclusive)");
