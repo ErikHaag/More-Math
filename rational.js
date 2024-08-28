@@ -27,7 +27,7 @@ class Rational {
     clone() {
         return new Rational(this.numerator, this.denominator);
     }
-    simplify() {
+    #simplify() {
         let factor = BigMathJS.gcd(this.numerator, this.denominator);
         this.numerator /= factor;
         this.denominator /= factor;
@@ -118,7 +118,7 @@ class Rational {
         if (B instanceof Rational) {
             this.numerator = this.numerator * B.denominator + this.denominator * B.numerator;
             this.denominator *= B.denominator;
-            this.simplify();
+            this.#simplify();
         } else if (typeof B == "bigint") {
             this.numerator += this.denominator * B;
         } else {
@@ -129,7 +129,7 @@ class Rational {
         if (B instanceof Rational) {
             this.numerator = this.numerator * B.denominator - this.denominator * B.numerator;
             this.denominator *= B.denominator;
-            this.simplify();
+            this.#simplify();
         } else if (typeof B == "bigint") {
             this.numerator -= this.denominator * B;
         } else {
@@ -140,7 +140,7 @@ class Rational {
         if (B instanceof Rational) {
             this.numerator *= B.numerator;
             this.denominator *= B.denominator;
-            this.simplify();
+            this.#simplify();
         } else if (typeof B == "bigint") {
             if (this.denominator % B == 0n) {
                 this.denominator /= B;
@@ -158,7 +158,7 @@ class Rational {
             }
             this.numerator *= B.denominator;
             this.denominator *= B.numerator;
-            this.simplify();
+            this.#simplify();
         } else if (typeof B == "bigint") {
             if (B == 0n) {
                 return new Error("Division by zero!");
