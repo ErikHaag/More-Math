@@ -42,9 +42,9 @@ const BigMathJS = {
     },
     sign: function(a) {
         if (a > 0n) {
-            return 1;
+            return 1n;
         } else if (a < 0n) {
-            return -1;
+            return -1n;
         }
         return 0n;
     }
