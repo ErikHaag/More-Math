@@ -154,7 +154,7 @@ class Matrix {
                 k += 1;
             }
         }
-        this.#ref = m;
+        this.#ref = m.indices;
         if (this.isSquare()) {
             let p = new Rational((neg ? -1n : 1n));
             for (let i = 0; i < m.columns; i++) {
@@ -169,7 +169,7 @@ class Matrix {
         if (!this.#determinateCalled) {
             this.#rowReduction();
         }
-        this.indices = structuredClone(this.#ref);
+        this.indices = this.#ref
         this.#determinateCalled = false;
     }
     determinate() {
