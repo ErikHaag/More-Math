@@ -34,7 +34,7 @@ const BigMathJS = {
         return a;
     },
     lcm: function(a, b) {
-        return (a * b) / BigMathJS.lcm(a, b);
+        return (a * b) / BigMathJS.gcd(a, b);
     },
     mod: function(a, b) {
         let r = a % b;
