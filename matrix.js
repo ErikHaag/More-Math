@@ -189,7 +189,7 @@ class Matrix {
                 let hMax = M.rows;
                 let kMax = M.columns;
                 let I = new Matrix(M.rows, "identity");
-                M = M.augment(I);
+                M.augment(I);
                 let h = 0;
                 let k = 0;
                 while ((h < hMax) && (k < kMax)) {
@@ -227,15 +227,20 @@ class Matrix {
                     }
                 }
                 for (let i = 0; i < hMax; i++) {
-                    M.scaleRow(i, M.indices[i][i].cloneInverse());
+                    let d = M.indices[i][i].clone();
+                    d.inverse();
+                    M.scaleRow(i, d);
                 }
                 let m = [];
                 for (let i = 0; i < hMax; i++) {
+                    let r = [];
                     for (let j = kMax; j < M.columns; j++) {
-                        m.push(M.indices[i][j].clone());
+                        r.push(M.indices[i][j].clone());
                     }
+                    m.push(r);
                 }
-                return new Matrix(kMax, m.flat());
+                this.indices = m;
+                this.#determinate.inverse();
             } else {
                 return new Error("Matrix has a determinate of zero.")
             }
