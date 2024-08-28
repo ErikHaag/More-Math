@@ -70,13 +70,12 @@ class Matrix {
             this.#determinate.mult(-1n); 
         }
     }
-    addRow(row, dest, scale = new Rational(1n)) {
+    addRow(source, destination, scale = 1n) {
         for (let i = 0; i < this.columns; i++) {
-            let r = this.indices[row][i].clone();
+            let r = this.indices[source][i].clone();
             r.mult(scale);
-            this.indices[dest][i].add(r);
+            this.indices[destination][i].add(r);
         }
-        this.#determinateCalled = false;
     }
     scale(scale) {
         for (let i = 0; i < this.rows; i++) {
@@ -94,11 +93,14 @@ class Matrix {
     transpose() {
         let t = [];
         for (let i = 0; i < this.columns; i++) {
+            let r = []
             for (let j = 0; j < this.rows; j++) {
-                t.push(this.indices[j][i]);
+                r.push(this.indices[j][i]);
             }
+            t.push(r);
         }
-        return new Matrix(this.rows, t.flat());
+        this.indices = t;
+        [this.columns, this.rows] = [this.rows, this.columns];
     }
     clone() {
         let m = [];
@@ -241,18 +243,21 @@ class Matrix {
         }
     }
     augment(B) {
-        let m = [];
         if (this.rows == B.rows) {
+            let m = [];
             for (let i = 0; i < this.rows; i++) {
+                let r = [];
                 for (let j = 0; j < this.columns; j++) {
-                    m.push(this.indices[i][j].clone());
+                    r.push(this.indices[i][j].clone());
                 }
                 for (let j = 0; j < B.columns; j++) {
-                    m.push(B.indices[i][j].clone());
+                    r.push(B.indices[i][j].clone());
                 }
+                m.push(r);
             }
+            this.indices = m;
+            this.columns += B.columns;
             this.#determinateCalled = false;
-            return new Matrix(this.columns + B.columns, m.flat());
         } else {
             return new Error("Unable to augment due too inequal rows.");
         }
@@ -285,48 +290,60 @@ class Matrix {
     }
     hadamardProduct(B) {
         //element-wise product
-        let m = [];
         if (this.columns == B.columns && this.rows == B.rows) {
+            let m = [];
             for (let i = 0; i < this.rows; i++) {
+                let r = [];
                 for (let j = 0; j < this.columns; j++) {
                     let p = this.indices[i][j].clone();
                     p.mult(B.indices[i][j]);
-                    m.push(p);
+                    r.push(p);
                 }
+                m.push(r);
             }
-            return new Matrix(this.columns, m.flat());
+            this.indices = m;
+            this.#determinateCalled = false;
         } else {
             return new Error("Can only take Hadamard product with matrices of the same size.");
         }
     }
     kroneckerProduct(B) {
-        //matrices inside matrices
+        //all the pairwise products!
         let m = [];
         for (let aI = 0; aI < this.rows; aI++) {
             for (let bI = 0; bI < B.rows; bI++) {
+                let r = [];
                 for (let aJ = 0; aJ < this.columns; aJ++) {
-                    for (let bJ = 0; bJ < B.columns; bJ++) {
+                    for (let bJ = 0; bJ < B.columns; bJ++) {                        
                         let p = this.indices[aI][aJ].clone();
                         p.mult(B.indices[bI][bJ]);
-                        m.push(p);
+                        r.push(p);
                     }
                 }
+                m.push(r);
             }
         }
-        return new Matrix(this.columns * B.columns, m.flat())
+        this.indices = m;
+        this.columns *= B.columns;
+        this.row *= B.rows;
+        this.#determinateCalled = false;
     }
     outerProduct(B) {
         //multiplication table
         if (this.columns == 1 && B.columns == 1) {
             let m = [];
             for (let i = 0; i < this.rows; i++) {
+                let r = [];
                 for (let j = 0; j < B.rows; j++) {
                     let p = this.indices[i][0].clone();
                     p.mult(B.indices[j][0]);
-                    m.push(p);
+                    r.push(p);
                 }
+                m.push(r);
             }
-            return new Matrix(B.rows, m.flat());
+            this.indices = m;
+            this.columns = B.rows;
+            this.#determinateCalled = false;
         } else {
             return new Error("Can only take outer product with vectors. (A matrix with 1 column)");
         }
@@ -336,6 +353,7 @@ class Matrix {
         if (this.columns == B.rows) {
             let m = [];
             for (let i = 0; i < this.rows; i++) {
+                let r = [];
                 for (let j = 0; j < B.columns; j++) {
                     let sum = new Rational(0n);
                     for (let k = 0; k < this.columns; k++) {
@@ -343,10 +361,13 @@ class Matrix {
                         p.mult(B.indices[k][j]);
                         sum.add(p);
                     }
-                    m.push(sum);
+                    r.push(sum);
                 }
+                m.push(r);
             }
-            return new Matrix(B.columns, m.flat());
+            this.indices = m;
+            this.columns = B.columns;
+            this.#determinateCalled = false;
         } else {
             return new Error("Matrices have incompatible sizes.");
         }
