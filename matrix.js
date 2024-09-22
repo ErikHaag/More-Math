@@ -1,5 +1,5 @@
 /*
-More Math library by Erik Haag version 2.0
+More Math library by Erik Haag version 2.0.2
 https://github.com/ErikHaag/More-Math/
 Dependencies: moreMathCore.js, rational.js
 */

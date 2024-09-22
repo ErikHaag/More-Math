@@ -1,5 +1,5 @@
 /*
-More Math library by Erik Haag version 2.0
+More Math library by Erik Haag version 2.0.2
 https://github.com/ErikHaag/More-Math/
 Dependencies: moreMathCore.js
 */
@@ -172,6 +172,10 @@ class Rational {
     }
     pow(B) {
         if (typeof B == "bigint") {
+            if (B < 0n) {
+                [this.numerator, this.denominator] = [this.denominator, this.numerator];
+                B *= -1n;
+            }
             this.numerator **= B;
             this.denominator **= B;
         } else {
