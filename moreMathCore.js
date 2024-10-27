@@ -24,12 +24,11 @@ const BigMathJS = {
     gcd: function (a, b) {
         a = BigMathJS.abs(a);
         b = BigMathJS.abs(b);
+        if (a < b) {
+            [a, b] = [b, a];
+        }
         while (b > 0n) {
-            if (a < b) {
-                [a, b] = [b, a];
-            } else {
-                a %= b;
-            }
+            [a, b] = [b, a % b];
         }
         return a;
     },
