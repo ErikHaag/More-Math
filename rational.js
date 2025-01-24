@@ -49,14 +49,13 @@ class Rational {
             return new Error("Invalid Base, must be between 2 and 36 (inclusive)");
         }
         //setup
-        let int = this.numerator / this.denominator;
+        let negative = this.numerator < 0n;
+        let int = BigMathJS.abs(this.numerator / this.denominator);
         let baseRational = new Rational(BigInt(base));
         let baseNumber = Number(base);
         let frac = this.clone();
+        if (negative) {frac.mult(-1n)};
         frac.sub(int);
-        if (int < 0n) {
-            frac.mult(-1n);
-        }
         int = int.toString(baseNumber);
         if (decimalLength == 0n) {
             return int;
@@ -90,7 +89,7 @@ class Rational {
                 quotient.push("]");
             }
             //package up the string
-            return int + decimalSeparator + quotient.join("");
+            return (negative ? "-": "") + int + decimalSeparator + quotient.join("");
         }
     }
     floor() {
