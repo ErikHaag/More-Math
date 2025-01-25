@@ -186,6 +186,9 @@ class Matrix {
             return new Error("Matrix has a determinate of zero.");
         }
         let M = this.clone();
+        let hMax = M.rows;
+        let kMax = M.columns;
+        M.augment(new Matrix(M.rows, "identity"));
         let h = 0n;
         let k = 0n;
         while ((h < hMax) && (k < kMax)) {
