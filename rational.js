@@ -87,7 +87,12 @@ class Rational {
             if (this.numerator % B == 0n) {
                 this.numerator /= B;
             } else {
-                this.denominator *= B;
+                if (B < 0n) {
+                    this.numerator *= -1n;
+                    this.denominator *= -B;
+                } else {
+                    this.denominator *= B;
+                }
             }
         }
     }
@@ -123,9 +128,14 @@ class Rational {
                 return new Error("Indeterminate form");
             }
             if (this.denominator != 0n && this.denominator % B == 0n) {
-                this.denominator /= B;
+                if (B < 0n) {
+                    this.numerator *= -1;
+                    this.denominator /= -B;
+                } else {
+                    this.denominator /= B;
+                }
             } else {
-                this.numerator *= B;
+                    this.numerator *= B;
             }
         } else {
             return new Error("Argument must be BigInt or Rational");
