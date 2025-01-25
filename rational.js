@@ -165,7 +165,7 @@ class Rational {
         let factor = BigMathJS.gcd(this.numerator, this.denominator);
         this.numerator /= factor;
         this.denominator /= factor;
-        if (this.denominator < 0) {
+        if (this.denominator < 0n) {
             this.numerator *= -1n;
             this.denominator *= -1n;
         }
@@ -192,7 +192,10 @@ class Rational {
 
     toDecimal(decimalLength = 3n, base = 10n, decimalSeparator = ".") {
         if (this.denominator == 0n) {
-            return (this.numerator < 0 ? "-" : "") + "Infinity";
+            if (this.numerator == 0n) {
+                return "Indeterminate";
+            }
+            return (this.numerator < 0n ? "-" : "") + "Infinity";
         }
         //check if base is valid
         if (base < 2n || base > 36n) {
@@ -246,23 +249,22 @@ class Rational {
     }
 
     toLatex() {
-        if (this.denominator == 0n) {
-            return (this.numerator < 0 ? "-" : "") + "\\infty";
+        if (this.denominator == 0n && this.numerator != 0n) {
+            return (this.numerator < 0n ? "-" : "") + "\\infty";
         }
         if (this.denominator == 1n) {
             return this.numerator.toString();
-        } else {
-            return "\\frac{" + this.numerator + "}{" + this.denominator + "}"
         }
+        return "\\frac{" + this.numerator + "}{" + this.denominator + "}"
     }
 
     toString(hideDenominator = true) {
-        if (this.denominator == 0) {
-            return (this.numerator < 0 ? "-" : "") + "Infinity";
-        } else if (hideDenominator && this.denominator == 1n) {
-            return this.numerator.toString();
-        } else {
-            return this.numerator + "/" + this.denominator;
+        if (this.denominator == 0n && this.numerator != 0n) {
+            return (this.numerator < 0n ? "-" : "") + "Infinity";
         }
+        if (hideDenominator && this.denominator == 1n) {
+            return this.numerator.toString();
+        }
+        return this.numerator + "/" + this.denominator;
     }
 }
