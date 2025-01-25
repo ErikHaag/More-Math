@@ -77,7 +77,10 @@ class Matrix {
         for (let i = 0n; i < this.columns; i++) {
             let r = this.indices[source][i].clone();
             r.mult(scale);
-            this.indices[destination][i].add(r);
+            let e = this.indices[destination][i].add(r);
+            if (e instanceof Error) {
+                return e;
+            }
         }
     }
 
