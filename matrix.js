@@ -76,8 +76,11 @@ class Matrix {
     addRow(source, destination, scale = 1n) {
         for (let i = 0n; i < this.columns; i++) {
             let r = this.indices[source][i].clone();
-            r.mult(scale);
-            let e = this.indices[destination][i].add(r);
+            let e = r.mult(scale);
+            if (e instanceof Error) {
+                return e;
+            }
+            e = this.indices[destination][i].add(r);
             if (e instanceof Error) {
                 return e;
             }
