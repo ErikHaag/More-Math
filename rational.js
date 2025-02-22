@@ -129,7 +129,7 @@ class Rational {
             }
             if (this.denominator != 0n && this.denominator % B == 0n) {
                 if (B < 0n) {
-                    this.numerator *= -1;
+                    this.numerator *= -1n;
                     this.denominator /= -B;
                 } else {
                     this.denominator /= B;
